@@ -1,6 +1,6 @@
 ## Bund
 
-  Natural, predictable, no-boilerplate immutable state management for JavaScript apps
+  Natural, no-boilerplate immutable state management for JavaScript apps
 
 ### Installation
 
@@ -314,3 +314,63 @@ appBundle.getState(); // => { count: 1, users: [{ id: 2 }] }
 ```
 
 #### Usage with React
+
+And here we are to the essence, how to use `bund` for practical front-end
+applications. Integration with is as simple as:
+
+```js
+import { combine } from 'react-bund';
+
+const Users = connect(({ users, addUser, removeUser, updateUser}) => (
+  <div className="Users">
+    <h1>Users</h1>
+    <ul>
+      {users.users.map(u => (
+        <li>
+          {u.name} ({u.karma})
+          <button onClick={updateUser(u.id, { karma: u.karma + 1})}>+</button>
+          <button onClick={updateUser(u.id, { karma: u.karma - 1})}>-</button>
+          <button onClick={removeUser(u.id)}>X</button>
+        </li>
+        ))}
+    </ul>
+  </div>
+), usersBundle);
+```
+
+And here is the long version with some explanations:
+
+```js
+const UsersPure = ({ users, addUser, removeUser, updateUser}) => (
+  <div className="Users">
+    <h1>Users</h1>
+    <ul>
+      {users.users.map(u => (
+        <li>
+          {u.name} ({u.karma})
+          <button onClick={updateUser(u.id, { karma: u.karma + 1})}>+</button>
+          <button onClick={updateUser(u.id, { karma: u.karma - 1})}>-</button>
+          <button onClick={removeUser(u.id)}>X</button>
+        </li>
+        ))}
+    </ul>
+  </div>
+);
+
+const Users = connect(UsersPure, usersBundle, {
+  // `select` is executed after every state change and selects data from the
+  // new state. Result is merged with component properties.
+  select: state => state,
+
+  // Executed once. Returned result is merged with component
+  // properties. Provided argument is the connected bundle (`usersBundle` in
+  // this case).
+  //
+  // If we connect to combined bundle, the argument will be an object with
+  // schema: `bundle key` => `bundle`.
+  selectOnce: ({ actions, selectors }) => ({
+    ...actions,
+    ...selectors,
+  }),
+});
+```

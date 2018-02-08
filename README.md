@@ -29,15 +29,15 @@ language tools - pure functions and data.
   state. Those bundles are the single abstraction provided by the library and
   should be as simple to use and compose as functions.
 - The only way to change the state is to call some of your pure functions
-  that computes the news state and store that state in the state bundle.
+  that computes the news state and store it in the bundle.
 - Bundles are combined together in bigger bundles that manage bigger parts of
   the application state and eventually the whole app state.
 - State should acts and feels like it is stored in a single place, but different
   parts of the system should be able to easily work with just the state they are
   concerned with.
 - Every state transition emits action event that is as description of the
-  transition. Actions are cnosidered notifications for update, not a trigger
-  for update.
+  transition. Actions are considered notifications for update, not a trigger for
+  one.
 - Rapid reusability and minimal boilerplate
 
 #### Benefits of this approach
@@ -62,19 +62,20 @@ functionality like the following:
   so that product developers can build custom tools for their apps.
 - Provide alternative UIs while reusing most of the business logic.
 
-But all of this comes with some trade offs.
+But all of this comes with some trade offs, that `bund` tires to address:
 
 - *No encapsulation*
 - *Learning curve*
 - *Flow complexity*
 - *A lot of boilerplate*
 
-And we believe that the primary reason for this the indirect state transitions
-trough actions. While useful in many ways, it lead to many problems related to a
-lot of boilerplate or complexity in following the data flow. In `bond` we
-believe that state transitions should be performed directly, but actions should
-be emitted for the cases where they can be beneficial. They should be cnosidered
-notifications, not triggers for an update.
+And we believe that the primary reason for this the indirect state transition
+approach trough actions. While useful in many ways, it lead to many problems
+related to a lot of boilerplate or complexity in following the data flow. In
+`bund` we believe that state transitions should be performed directly, but
+actions should be emitted for the cases where they can be beneficial. They
+should be considered notifications, not triggers for an update. With this change
+the problems above are no longer relevant.
 
 ### Usage
 

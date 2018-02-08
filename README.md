@@ -40,13 +40,13 @@ language tools - pure functions and data.
   one.
 - Rapid reusability and minimal boilerplate
 
-#### Benefits of this approach
+#### Lessons learned
 
 This section compares `bund` and `redux` and tries to illustrate how we can
 learn from and improve on the `redux` foundations.
 
 Centralized state management and using actions to describe state transitions
-makes it trivial to implement functionality like the following: [[source]](https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367):
+makes it trivial to implement functionality like the following [[source]](https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367):
 
 - Persist state to a local storage and then boot up from it, out of the box.
 - Pre-fill state on the server, send it to the client in HTML, and boot up from

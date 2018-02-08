@@ -72,7 +72,7 @@ But all of this comes with some trade offs, that `bund` tires to address:
 - *A lot of boilerplate*
 
 And we believe that the primary reason for this the indirect state transition
-approach trough actions. While useful in many ways, it lead to many problems
+approach trough actions. While useful in many ways, it lead to problems
 related to a lot of boilerplate or complexity in following the data flow. In
 `bund` we believe that state transitions should be performed directly, but
 actions should be emitted for the cases where they can be beneficial. They

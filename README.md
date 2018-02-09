@@ -107,11 +107,13 @@ const initialState = [];
 // Functions that accept the state and transform it to the new state
 // version. They should be pure and not mutate the state.
 //
-const addUser = (state, user) => ([...state, user]);
-const removeUser = (state, userId) => state.filter(u => u.id !== userId);
-const updateUser = (state, userId, data) => state.map(u => (
-  u.id === userId ? { ...u, data } : u
-));
+const addUser = (state, user) => ({ usersList: [...state.usersList, user] });
+const removeUser = (state, userId) => ({ usersList: state.usersList.filter(u => u.id !== userId);})
+const updateUser = (state, userId, data) => ({
+  usersList: state.usersList.map(u => (
+    u.id === userId ? { ...u, data } : u
+  ))
+})
 
 // Selectors - select data from the state
 //
@@ -219,7 +221,7 @@ const usersBundle = bundle({
 // Calling actions
 usersBundle.addUser({ id: 2 });
 usersBundle.actions.addUser({ id: 3 });
-usersBundle.getState(); // => [{ id: 2 }, { id: 3 }]
+usersBundle.getState(); // => { usersList: [{ id: 2 }, { id: 3 }] }
 
 // Calling selectors
 usersBundle.selectTopUser();
@@ -300,20 +302,20 @@ const appBundle = combine([
 //   - appBundle.applyAction(action);
 //
 
-appBundle.getState(); // => { count: 0, users: [] }
-appBundle.getInitialState(); // => { count: 0, users: [] }
+appBundle.getState(); // => { count: 0, users: { usersList: []} }
+appBundle.getInitialState(); // => { count: 0, users: { usersList: []} }
 
 appBundle.getBundle('count').getState(); // => 0
 appBundle.getBundle('count').inc();
 
 appBundle.getBundle('count').getState(); // => 1
-appBundle.getState(); // => { count: 1, users: [] }
+appBundle.getState(); // => { count: 1, users: { usersList: []} }
 
 // Even if we transition only the `usersBundle`, the change is reflected in the
 // application state. Some parts of the application can work with `usersBundle`,
 // some with `appBundle` depending on their data needs.
 usersBundle.addUser({ id: 2 });
-appBundle.getState(); // => { count: 1, users: [{ id: 2 }] }
+appBundle.getState(); // => { count: 1, users: { usersList: [{ id: 2 }] } }
 ```
 
 #### Usage with React
@@ -324,11 +326,11 @@ applications. Integration with is as simple as:
 ```js
 import { combine } from 'react-bund';
 
-const Users = connect(({ users, addUser, removeUser, updateUser}) => (
+const Users = connect(({ usersList, addUser, removeUser, updateUser}) => (
   <div className="Users">
     <h1>Users</h1>
     <ul>
-      {users.users.map(u => (
+      {usersList.map(u => (
         <li>
           {u.name} ({u.karma})
           <button onClick={updateUser(u.id, { karma: u.karma + 1})}>+</button>
@@ -344,11 +346,11 @@ const Users = connect(({ users, addUser, removeUser, updateUser}) => (
 And here is the long version with some explanations:
 
 ```js
-const UsersPure = ({ users, addUser, removeUser, updateUser}) => (
+const UsersPure = ({ usersList, addUser, removeUser, updateUser}) => (
   <div className="Users">
     <h1>Users</h1>
     <ul>
-      {users.users.map(u => (
+      {usersList.map(u => (
         <li>
           {u.name} ({u.karma})
           <button onClick={updateUser(u.id, { karma: u.karma + 1})}>+</button>
@@ -377,3 +379,7 @@ const Users = connect(UsersPure, usersBundle, {
   }),
 });
 ```
+
+#### More examples
+
+Check the `/examples` directory.

@@ -4,5 +4,6 @@ node_modules
 .spec.js
 .docs.js
 .notes.js
+.examples.js
 lib
 es

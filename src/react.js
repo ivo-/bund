@@ -1,36 +1,36 @@
 import { Component, createElement } from 'react';
 
-const defaultSelect = state => state;
-const defaultSelectOnce = (actions, selectors) => ({
-  ...actions,
-  ...selectors,
+const defaultSelectAll = state => state;
+const defaultSelectOnceAll = (state, bundle) => ({
+  ...(bundle.actions ? {
+    ...bundle.actions,
+    ...bundle.selectors,
+  } : {
+    ...Object.values(bundle).reduce((res, b) => ({
+      ...res,
+      ...b.actions,
+      ...b.selectors,
+    })),
+  }),
 });
 const defaultThrottle = f => f;
 
-/**
- * Connect `React` component to `bund` bundle.
- * @prop {React.Component} component
- * @prop {Object} thisBundle
- * @prop {Object} options
- * @prop {Function} options.select
- * @prop {Function} options.selectOnce
- * @prop {Function} options.throttle
- */
 export default function connect(
   component,
   thisBundle,
   {
-    select = defaultSelect,
-    selectOnce = defaultSelectOnce,
+    selectAll = false,
+    select = selectAll && defaultSelectAll,
+    selectOnce = selectAll && defaultSelectOnceAll,
     throttle = defaultThrottle,
   } = {}
 ) {
-  const selectArgs = thisBundle.bundles || [
-    thisBundle.actions,
-    thisBundle.selectors,
-  ];
-  const staticProps = selectOnce(thisBundle.getState(), ...selectArgs);
-  const getDynamicProps = () => select(thisBundle.getState(), selectArgs);
+  const selectArg = thisBundle.bundles
+    ? thisBundle.bundles.reduce((res, b) => ({ ...res, [b.key]: b }))
+    : thisBundle;
+
+  const staticProps = selectOnce(thisBundle.getState(), selectArg);
+  const getDynamicProps = () => select(thisBundle.getState(), selectArg);
 
   return class extends Component {
     constructor(props) {
@@ -58,30 +58,15 @@ export default function connect(
         this.lastState = state;
         this.lastDynamicProps = getDynamicProps();
 
-        /* eslint-disable */
-        if (thisBundle.key === 'users') console.log(
-          'chaaaaaaaaaaaaannnnnnnnnngggggggggeeeeeeeee',
-          action,
-          // action[1],
-          // thisBundle.key,
-          // 'current',
-          // thisBundle.getState(),
-          // 'last',
-          // this.lastState,
-          // 'props',
-          // getDynamicProps(),
-        );
-
-        this.forceUpdate();
+        this.scheduleUpdate();
       }
     }
 
     render() {
       const dynamicProps = getDynamicProps();
-      this.lastDynamicProps = dynamicProps;
       const props = Object.assign({}, this.props, staticProps, dynamicProps);
-      console.log('rerender', props);
 
+      this.lastDynamicProps = dynamicProps;
       return createElement(
         component,
         props,

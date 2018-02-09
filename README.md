@@ -15,9 +15,9 @@ $ npm install --save bund
 We strongly believe that immutability is the way to go for building a reliable
 software. There are several wonderful libraries for managing state in this
 fashion, but despite the benefits most of them intorduce a lot of abstraction or
-unnatural feel about imitable programming. We want something simple and
-predictable, something that feels natural and relies on the essential programing
-language tools - pure functions and data.
+unnatural feel about imitable programming. `bund` is designed to offer simple
+predictable state management that feels natural and relies on the essential
+programing tool - pure functions and data.
 
 #### Design Principles
 
@@ -29,21 +29,21 @@ language tools - pure functions and data.
   state. Those bundles are the single abstraction provided by the library and
   should be as simple to use and compose as functions.
 - The only way to change the state is to call some of your pure functions
-  that computes the news state and store it in the bundle.
+  that computes the new state and store it in the bundle.
 - Bundles are combined together in bigger bundles that manage bigger parts of
   the application state and eventually the whole app state.
 - State should acts and feels like it is stored in a single place, but different
   parts of the system should be able to easily work with just the state they are
   concerned with.
-- Every state transition emits action event that is as description of the
+- Every state transition emits action event that is a description of the
   transition. Actions are considered notifications for update, not a trigger for
   one.
-- Rapid reusability and minimal boilerplate
+- Minimal boilerplate
 
-#### Lessons learned
+#### Lessons learned from Redux
 
 This section compares `bund` and `redux` and tries to illustrate how we can
-learn from and improve on the `redux` foundations.
+learn and improve on the `redux` foundations.
 
 Centralized state management and using actions to describe state transitions
 makes it trivial to implement functionality like the following [[source]](https://medium.com/@dan_abramov/you-might-not-need-redux-be46360cf367):
@@ -71,13 +71,10 @@ But all of this comes with some trade offs, that `bund` tires to address:
 - *Flow complexity*
 - *A lot of boilerplate*
 
-And we believe that the primary reason for this the indirect state transition
-approach trough actions. While useful in many ways, it lead to problems
-related to a lot of boilerplate or complexity in following the data flow. In
-`bund` we believe that state transitions should be performed directly, but
-actions should be emitted for the cases where they can be beneficial. They
-should be considered notifications, not triggers for an update. With this change
-the problems above are no longer relevant.
+And the primary reason for this the indirect state transition approach trough
+actions. While useful in many ways, it leads to problems related to a lot of
+boilerplate or complexity in following the data flow. `bund` adopts direct state
+transitions , but emits actions for the cases where they can be beneficial.
 
 ### Usage
 
@@ -148,7 +145,7 @@ fetchUsers().then(users => {
 Now is the time to create a bundle out of your users state. A bundle is a
 wrapper for all the state management logic that maintains the state identity ->
 a pointer to the last state. This is what the `bund` library is - a tool to
-bundle and compose your immutable application state logic.
+bundle and compose bundle of your immutable application state logic.
 
 ```js
 const usersBundle = bundle({
@@ -321,7 +318,7 @@ appBundle.getState(); // => { count: 1, users: { usersList: [{ id: 2 }] } }
 #### Usage with React
 
 And here we are to the essence, how to use `bund` for practical front-end
-applications. Integration with is as simple as:
+applications. Integration with React can be as simple as:
 
 ```js
 import { combine } from 'react-bund';
@@ -340,7 +337,7 @@ const Users = connect(({ usersList, addUser, removeUser, updateUser}) => (
         ))}
     </ul>
   </div>
-), usersBundle);
+), usersBundle, { slectAll: true });
 ```
 
 And here is the long version with some explanations:
@@ -373,7 +370,7 @@ const Users = connect(UsersPure, usersBundle, {
   //
   // If we connect to combined bundle, the argument will be an object with
   // schema: `bundle key` => `bundle`.
-  selectOnce: ({ actions, selectors }) => ({
+  selectOnce: (state, { actions, selectors }) => ({
     ...actions,
     ...selectors,
   }),

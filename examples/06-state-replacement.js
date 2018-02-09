@@ -71,8 +71,16 @@ const UsersPure = ({ users, removeUser, updateUser }) =>
     </ul>
   </div>;
 
-export const Users1 = connect(UsersPure, bundle(usersState));
-export const Users2 = connect(UsersPure, bundle(usersState));
+export const Users1 = connect(
+  UsersPure,
+  bundle(usersState),
+  { selectAll: true }
+);
+export const Users2 = connect(
+  UsersPure,
+  bundle(usersState),
+  { selectAll: true }
+);
 
 // -----------------------------------------------------------------------------
 // Tests

@@ -97,7 +97,8 @@ export const Users = connect(
         Add
       </button>
     </div>,
-  usersBundle
+  usersBundle,
+  { selectAll: true }
 );
 
 export const Counter = connect(
@@ -111,9 +112,12 @@ export const Counter = connect(
       </div>
     </div>,
   counterBundle,
-  // This is because counter state is just a number, but select
-  // should return an object.
-  state => ({ counter: state })
+  {
+    selectAll: true,
+    // This is because counter state is just a number, but select
+    // should return an object.
+    select: state => ({ counter: state }),
+  },
 );
 
 // Connect to app bundle here Stats component needs both `counter` and `users`
@@ -131,7 +135,10 @@ export const Stats = connect(
       </div>
     </div>,
   appBundle,
-  { selectOnce: () => ({}) }
+  {
+    selectAll: true,
+    selectOnce: () => ({}),
+  }
 );
 
 export const App = () =>

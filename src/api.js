@@ -163,3 +163,11 @@ export function asyncAction({
     return state;
   };
 }
+
+export function partial(f, ...args) {
+  return (...moreArgs) => f(...args, ...moreArgs);
+}
+
+export function comp(fn, ...fns) {
+  return (...args) => fns.reduce((prev, f) => f(prev), fn(...args));
+}

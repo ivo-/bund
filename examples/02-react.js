@@ -72,6 +72,8 @@ const appBundle = combine(usersBundle, counterBundle);
 
 // Connect components to desired bundle depending on their data needs.
 export const Users = connect(
+  usersBundle,
+  { selectAll: true },
   ({
     users, addUser, removeUser, updateUser,
   }) =>
@@ -96,12 +98,17 @@ export const Users = connect(
       <button className="add" onClick={() => addUser({ id: 2 })}>
         Add
       </button>
-    </div>,
-  usersBundle,
-  { selectAll: true }
+    </div>
 );
 
 export const Counter = connect(
+  counterBundle,
+  {
+    selectAll: true,
+    // This is because counter state is just a number, but select
+    // should return an object.
+    select: state => ({ counter: state }),
+  },
   ({ counter, inc, dec }) =>
     <div className="Counter">
       <h1>Counter</h1>
@@ -110,20 +117,18 @@ export const Counter = connect(
         <button onClick={inc}>+</button>
         <button onClick={dec}>-</button>
       </div>
-    </div>,
-  counterBundle,
-  {
-    selectAll: true,
-    // This is because counter state is just a number, but select
-    // should return an object.
-    select: state => ({ counter: state }),
-  },
+    </div>
 );
 
 // Connect to app bundle here Stats component needs both `counter` and `users`
 // data. You can create and connect to multiple combined bundles depending on
 // data need of your components.
 export const Stats = connect(
+  appBundle,
+  {
+    selectAll: true,
+    selectOnce: () => ({}),
+  },
   ({ counter, users }) =>
     <div className="Stats">
       <h1>Stats</h1>
@@ -133,12 +138,7 @@ export const Stats = connect(
       <div>
         users count -> {users.users.length}
       </div>
-    </div>,
-  appBundle,
-  {
-    selectAll: true,
-    selectOnce: () => ({}),
-  }
+    </div>
 );
 
 export const App = () =>

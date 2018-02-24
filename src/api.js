@@ -1,4 +1,4 @@
-import { memoize, mapValues } from './utils';
+import { memoize, mapValues, shallowEqArrays } from './utils';
 
 /**
  * Create application state bundle.
@@ -59,6 +59,9 @@ export function bundle({
   return thisBundle;
 }
 
+/**
+ * Combine provided bundles.
+ */
 export function combine(...bundles) {
   if (bundles.find(b => b.bundles)) {
     return combine(
@@ -171,3 +174,45 @@ export function partial(f, ...args) {
 export function comp(fn, ...fns) {
   return (...args) => fns.reduce((prev, f) => f(prev), fn(...args));
 }
+
+/*
+ * TODO: extract in separate package
+ * TODO: testing
+ */
+export function paritalMemoize(f, ...args) {
+  const { cache, cacheSize, cacheItemSize } = paritalMemoize;
+
+  const newF = (...moreArgs) => f(...args, ...moreArgs);
+  const cachedValue = cache.get(f);
+
+  if (cachedValue) {
+    const cacheHit = cachedValue.find(v => (
+      shallowEqArrays(v.args, args) && v.newF
+    ));
+
+    if (cacheHit) return cacheHit.newF;
+
+    cache.set(f, [
+      {
+        args,
+        newF,
+      },
+      ...cachedValue,
+    ].slice(0, cacheItemSize));
+  } else {
+    cache.set(f, [{
+      args,
+      newF,
+    }]);
+
+    if (cache.size > cacheSize) {
+      cache.delete(cache.keys().next().value);
+    }
+  }
+
+  return newF;
+}
+
+paritalMemoize.cache = new Map();
+paritalMemoize.cacheSize = 1000;
+paritalMemoize.cacheItemSize = 40;

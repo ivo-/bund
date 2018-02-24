@@ -323,7 +323,7 @@ applications. Integration with React can be as simple as:
 ```js
 import { combine } from 'react-bund';
 
-const Users = connect(({ usersList, addUser, removeUser, updateUser}) => (
+const Users = connect(usersBundle, { slectAll: true }, ({ usersList, addUser, removeUser, updateUser}) => (
   <div className="Users">
     <h1>Users</h1>
     <ul>
@@ -337,7 +337,7 @@ const Users = connect(({ usersList, addUser, removeUser, updateUser}) => (
         ))}
     </ul>
   </div>
-), usersBundle, { slectAll: true });
+));
 ```
 
 And here is the long version with some explanations:
@@ -359,7 +359,7 @@ const UsersPure = ({ usersList, addUser, removeUser, updateUser}) => (
   </div>
 );
 
-const Users = connect(UsersPure, usersBundle, {
+const Users = connect(usersBundle, {
   // `select` is executed after every state change and selects data from the
   // new state. Result is merged with component properties.
   select: state => state,
@@ -374,7 +374,7 @@ const Users = connect(UsersPure, usersBundle, {
     ...actions,
     ...selectors,
   }),
-});
+}, UsersPure);
 ```
 
 #### More examples

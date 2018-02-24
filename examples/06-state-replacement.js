@@ -72,14 +72,14 @@ const UsersPure = ({ users, removeUser, updateUser }) =>
   </div>;
 
 export const Users1 = connect(
-  UsersPure,
   bundle(usersState),
-  { selectAll: true }
+  { selectAll: true },
+  UsersPure
 );
 export const Users2 = connect(
-  UsersPure,
   bundle(usersState),
-  { selectAll: true }
+  { selectAll: true },
+  UsersPure
 );
 
 // -----------------------------------------------------------------------------

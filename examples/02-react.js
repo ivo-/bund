@@ -5,23 +5,10 @@
 // connect different component do different bundle depending on the data they
 // need.
 
-import assert from 'assert';
-import { bundle, connect, combine } from '../src/index';
-
-/* eslint-disable */
-import React from 'react';
-import Enzyme, { mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import jsdom from 'jsdom';
-
-const doc = new jsdom.JSDOM('<!doctype html><html><body></body></html>');
-global.window = doc.window;
-global.document = doc.window.document;
-global.navigator = { userAgent: 'node.js' };
-Object.keys(window).forEach(k => global[k] || (global[k] = window[k]));
-
-Enzyme.configure({ adapter: new Adapter() });
-/* eslint-enable */
+const React = require('react');
+const assert = require('assert');
+const { mount } = require('enzyme');
+const { bundle, connect, combine } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // Users
@@ -71,7 +58,7 @@ const appBundle = combine(usersBundle, counterBundle);
 // Components
 
 // Connect components to desired bundle depending on their data needs.
-export const Users = connect(
+const Users = connect(
   usersBundle,
   { selectAll: true },
   ({
@@ -101,7 +88,7 @@ export const Users = connect(
     </div>
 );
 
-export const Counter = connect(
+const Counter = connect(
   counterBundle,
   {
     selectAll: true,
@@ -123,7 +110,7 @@ export const Counter = connect(
 // Connect to app bundle here Stats component needs both `counter` and `users`
 // data. You can create and connect to multiple combined bundles depending on
 // data need of your components.
-export const Stats = connect(
+const Stats = connect(
   appBundle,
   {
     selectAll: true,
@@ -141,7 +128,7 @@ export const Stats = connect(
     </div>
 );
 
-export const App = () =>
+const App = () =>
   <div className="App">
     <Users />
     <Counter />
@@ -164,5 +151,3 @@ assert.equal(app.find('li').length, 0);
 usersBundle.addUser({ id: 2 });
 app.find('.add').simulate('click');
 assert.equal(app.find('li').length, 2);
-
-export default true;

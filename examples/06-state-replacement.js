@@ -5,23 +5,10 @@
 // components in the system that benefit from all `bund.js` internal
 // optimizations.
 
-import assert from 'assert';
-import { bundle, connect } from '../src/index';
-
-/* eslint-disable */
-import React from 'react';
-import Enzyme, { mount } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
-import jsdom from 'jsdom';
-
-const doc = new jsdom.JSDOM('<!doctype html><html><body></body></html>');
-global.window = doc.window;
-global.document = doc.window.document;
-global.navigator = { userAgent: 'node.js' };
-Object.keys(window).forEach(k => global[k] || (global[k] = window[k]));
-
-Enzyme.configure({ adapter: new Adapter() });
-/* eslint-enable */
+const React = require('react');
+const assert = require('assert');
+const { mount } = require('enzyme');
+const { bundle, connect } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // State
@@ -71,12 +58,12 @@ const UsersPure = ({ users, removeUser, updateUser }) =>
     </ul>
   </div>;
 
-export const Users1 = connect(
+const Users1 = connect(
   bundle(usersState),
   { selectAll: true },
   UsersPure
 );
-export const Users2 = connect(
+const Users2 = connect(
   bundle(usersState),
   { selectAll: true },
   UsersPure
@@ -95,5 +82,3 @@ u1.find('.remove').simulate('click');
 
 assert.equal(u1.find('li').length, 0);
 assert.equal(u2.find('li').length, 1);
-
-export default true;

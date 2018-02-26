@@ -3,8 +3,8 @@
 // In this example we will show how to implement simple and naive undo
 // functionality using `bund`.
 
-import assert from 'assert';
-import { bundle } from '../src/index';
+const assert = require('assert');
+const { bundle, combine } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // History tracker
@@ -78,5 +78,3 @@ history.undo();
 assert.deepEqual(
   usersBundle.getState(), usersBundle.getInitialState()
 );
-
-export default true;

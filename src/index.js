@@ -1,5 +1,5 @@
-/* eslint-disable */
-export * from './api.js';
+const api = require('./api');
+const connect = require('./react');
 
-import connectt from './react';
-export const connect = connectt;
+
+module.exports = { ...api, connect: api.autocurry(connect) };

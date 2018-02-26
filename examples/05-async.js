@@ -4,13 +4,13 @@
 // async functions.
 //
 
-import assert from 'assert';
-import { bundle, asyncAction } from '../src/index';
+const assert = require('assert');
+const { bundle, asyncAction } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // Bundle
 
-export const usersBundle = bundle({
+const usersBundle = bundle({
   key: 'users',
   exportApi: true,
   initialState: {
@@ -108,5 +108,3 @@ setTimeout(() => {
 //   .then(res => usersBundle.setUsers(res))
 //   .catch(err => usersBundle.setError(err))
 //   .then(() => usersBundle.afterAction());
-
-export default true;

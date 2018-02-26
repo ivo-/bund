@@ -15,50 +15,40 @@
   },
   "homepage": "https://github.com/ivo-/bund",
   "keywords": [
-    "react",
-    "vue.js"
+    "react"
   ],
   "files": [
-    "dist",
     "lib",
-    "es",
-    "src",
-    "rollup.config.js"
+    "src"
   ],
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-eslint": "^8.2.1",
-    "babel-plugin-external-helpers": "^6.22.0",
-    "babel-plugin-syntax-jsx": "^6.18.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.6.1",
+    "dox": "^0.9.0",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "eslint": "^4.18.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.8.0",
     "jsdom": "^11.6.2",
     "nodeunit": "^0.11.2",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "rollup": "^0.55.1",
-    "rollup-plugin-babel": "^3.0.3",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-eslint": "^4.0.0",
-    "rollup-plugin-node-resolve": "^3.0.2",
-    "rollup-plugin-replace": "^2.0.0"
+    "react-dom": "^16.2.0"
   },
   "peerDependencies": {
     "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0"
   },
   "scripts": {
-    "dev": "npm run build:dev && node .bundle.js",
-    "test": "rollup ./src/index_spec.js --o .spec.js --f cjs --config rollup.config.js && nodeunit .spec.js",
-    "build:dev": "rollup --config rollup.config.js",
-    "build:examples": "NODE_ENV=examples rollup ./examples/index.js -c -o .examples.js && node .examples.js",
-    "build:es": "BABEL_ENV=es NODE_ENV=es rollup -c -o es/index.js",
-    "build:commonjs": "NODE_ENV=cjs rollup -c -o lib/index.js",
-    "build": "npm run build:commonjs && npm run build:es && npm run build:dev",
-    "prepare_": "npm run test && npm run build"
+    "test": "nodeunit src/**_spec.js",
+    "lint": "eslint src/**",
+    "lint:fix": "eslint --fix src/**",
+    "build": "npx babel src --out-dir lib",
+    "build:examples": "npx babel-node examples",
+    "build:docs": "cat src/navigators.js src/navigators-meta.js | dox -a > ./DOCS.md",
+    "prepare": "npm run lint && npm run test && npm run build && npm run build:examples && npm run build:docs"
   }
 }

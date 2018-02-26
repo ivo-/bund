@@ -5,9 +5,7 @@
     }]
   ],
   "plugins": [
-    "external-helpers",
     "transform-object-rest-spread",
     "transform-react-jsx",
-    "syntax-jsx"
   ]
 }

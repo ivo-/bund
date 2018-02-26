@@ -1,10 +1,102 @@
-import { memoize, mapValues, shallowEqArrays } from './utils';
+function mapValues(obj, fn) {
+  return Object.keys(obj).reduce((result, key) => {
+    result[key] = fn(obj[key], key);
+    return result;
+  }, {});
+}
+
+function shallowEqArrays(a, b) {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
+/**
+ * Simple memoize function with cache only last argument.
+ * @param {Function} fn
+ * @returns {Function}
+ */
+function memoize(f) {
+  let lastArgs = null;
+  let lastResult = null;
+  return (...args) => {
+    if (!lastArgs || !shallowEqArrays(args, lastArgs)) {
+      lastArgs = args;
+      lastResult = f(...args);
+    }
+
+    return lastResult;
+  };
+}
+
+/**
+ * Autocurry provided function. Works only for function with fixed
+ * number of parameters and no default parameters.
+ *
+ * @example
+ *
+ *   const sum = autocurry(function(a, b, c) { return a + b + c; });
+ *   sum(1)(2)(3); // => 6
+ *
+ * @returns {Function}
+ */
+function autocurry(fn) {
+  const { length } = fn;
+
+  return function next(...args) {
+    if (args.length < length) {
+      return next.bind(this, ...args);
+    }
+
+    return fn(...args);
+  };
+}
+
+/**
+ * Takes a function `fn` and fewer than the normal arguments to `fn`,
+ * and returns a fn that takes a variable number of additional args.
+ * When called, the returned function calls `fn` with args + additional
+ * args.
+ *
+ * @example
+ *
+ *   const sum = function(...args) { return args.reduce((a, b) => a + b); };
+ *
+ *   const plus1 = partial(sum, 1);
+ *   plus1(2); // => 3
+ *
+ *   const plus3= partial(plus1, 2);
+ *   plus3(2); // => 5
+ *
+ * @returns {Function}
+ */
+function partial(fn, ...args) {
+  return (...moreArgs) => fn(...args, ...moreArgs);
+}
+
+/**
+ * Takes an array of functions and returns a function that is the composition
+ * of those functions. The returned function takes a variable number of
+ * arguments, applies the rightmost of functions to these arguments, the next
+ * function(right-to-left) to the result, etc.
+ *
+ * @example
+ *
+ *   // The following two lines are equivalent:
+ *   comp(f1, f2, f3)(1, 2, 3);
+ *   f1(f2(f3(1, 2, 3)));
+ *
+ */
+function comp(...fns) {
+  const fnsInOrder = fns.slice().reverse();
+  const firstFn = fnsInOrder[0];
+  return (...args) =>
+    fnsInOrder.slice(1).reduce((prev, f) => f(prev), firstFn(...args));
+}
 
 /**
  * Create application state bundle.
  */
 // TODO: enable hot reloading
-export function bundle({
+function bundle({
   key,
   initialState,
   exportApi = true,
@@ -62,7 +154,7 @@ export function bundle({
 /**
  * Combine provided bundles.
  */
-export function combine(...bundles) {
+function combine(...bundles) {
   if (bundles.find(b => b.bundles)) {
     return combine(
       ...bundles
@@ -91,8 +183,7 @@ export function combine(...bundles) {
         return result;
       }, {}),
 
-    setState: newState =>
-      bundles.forEach(b => b.setState(newState[b.key])),
+    setState: newState => bundles.forEach(b => b.setState(newState[b.key])),
 
     onChange: callback => {
       const unsubscribe = bundles.map(b => b.onChange(callback));
@@ -104,12 +195,12 @@ export function combine(...bundles) {
   };
 }
 
-export const MECHANISM_ONCE = 'MECHANISM_ONCE';
-export const MECHANISM_EVERY = 'MECHANISM_EVERY';
-export const MECHANISM_FIRST = 'MECHANISM_FIRST';
-export const MECHANISM_SEQUENTIAL = 'MECHANISM_SEQUENTIAL';
+const MECHANISM_ONCE = 'MECHANISM_ONCE';
+const MECHANISM_EVERY = 'MECHANISM_EVERY';
+const MECHANISM_FIRST = 'MECHANISM_FIRST';
+const MECHANISM_SEQUENTIAL = 'MECHANISM_SEQUENTIAL';
 
-export function asyncAction({
+function asyncAction({
   mechanism = MECHANISM_EVERY,
   fetch = Function,
   errorAction = null,
@@ -167,52 +258,64 @@ export function asyncAction({
   };
 }
 
-export function partial(f, ...args) {
-  return (...moreArgs) => f(...args, ...moreArgs);
-}
-
-export function comp(fn, ...fns) {
-  return (...args) => fns.reduce((prev, f) => f(prev), fn(...args));
-}
-
 /*
- * TODO: extract in separate package
- * TODO: testing
+ * Creates memoized version of `partial`. Cache works on 2 levels: number of
+ * functions to be cached, and number of different arguments to be cached per
+ * function. Cache follows Last In First Out (LIFO) policy.
+ * @param {Number} cacheSize=1000
+ * @param {Number} cacheItemSize=40
+ * @returns {Function}
  */
-export function paritalMemoize(f, ...args) {
-  const { cache, cacheSize, cacheItemSize } = paritalMemoize;
+function createPartialMemoize(cacheSize = 1000, cacheItemSize = 40) {
+  function partialMemoize(fn, ...args) {
+    const { cache } = partialMemoize;
 
-  const newF = (...moreArgs) => f(...args, ...moreArgs);
-  const cachedValue = cache.get(f);
+    const newF = (...moreArgs) => fn(...args, ...moreArgs);
+    const cachedValue = cache.get(fn);
 
-  if (cachedValue) {
-    const cacheHit = cachedValue.find(v => (
-      shallowEqArrays(v.args, args) && v.newF
-    ));
+    if (cachedValue) {
+      const cacheHit = cachedValue.find(
+        v => shallowEqArrays(v.args, args) && v.newF
+      );
+      if (cacheHit) return cacheHit.newF;
 
-    if (cacheHit) return cacheHit.newF;
-
-    cache.set(f, [
-      {
-        args,
-        newF,
-      },
-      ...cachedValue,
-    ].slice(0, cacheItemSize));
-  } else {
-    cache.set(f, [{
-      args,
-      newF,
-    }]);
-
-    if (cache.size > cacheSize) {
-      cache.delete(cache.keys().next().value);
+      cache.set(
+        fn,
+        [{ args, newF }, ...cachedValue].slice(0, partialMemoize.cacheItemSize)
+      );
+    } else {
+      cache.set(fn, [{ args, newF }]);
+      if (cache.size > partialMemoize.cacheSize) {
+        // The cryptic way to delete the first Map item.
+        cache.delete(cache.keys().next().value);
+      }
     }
+
+    return newF;
   }
 
-  return newF;
+  partialMemoize.cache = new Map();
+  partialMemoize.cacheSize = cacheSize;
+  partialMemoize.cacheItemSize = cacheItemSize;
+
+  return partialMemoize;
 }
 
-paritalMemoize.cache = new Map();
-paritalMemoize.cacheSize = 1000;
-paritalMemoize.cacheItemSize = 40;
+module.exports = {
+  bundle,
+  combine,
+
+  asyncAction,
+  MECHANISM_ONCE,
+  MECHANISM_EVERY,
+  MECHANISM_FIRST,
+  MECHANISM_SEQUENTIAL,
+
+  comp,
+  memoize,
+  partial,
+  autocurry,
+  mapValues,
+  shallowEqArrays,
+  createPartialMemoize,
+};

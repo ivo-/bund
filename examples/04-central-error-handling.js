@@ -4,21 +4,21 @@
 // used to implement central error handling for the application state.
 //
 
-import assert from 'assert';
-import { bundle, combine } from '../src/index';
+const assert = require('assert');
+const { bundle, combine } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // Shared Handlers
 
-export const publishError = state => state;
+const publishError = state => state;
 
 // -----------------------------------------------------------------------------
 // Numbers
 
-export const pushNumber = (state, number) => ([...state, number]);
-export const popNumber = state => state.slice(0, -1);
+const pushNumber = (state, number) => ([...state, number]);
+const popNumber = state => state.slice(0, -1);
 
-export const numbersBundle = bundle({
+const numbersBundle = bundle({
   key: 'numbers',
   exportApi: true,
   initialState: [],
@@ -28,10 +28,10 @@ export const numbersBundle = bundle({
 // -----------------------------------------------------------------------------
 // Counter
 
-export const inc = state => state + 1;
-export const dec = state => state - 1;
+const inc = state => state + 1;
+const dec = state => state - 1;
 
-export const counterBundle = bundle({
+const counterBundle = bundle({
   key: 'counter',
   initialState: 0,
   actions: { inc, dec, publishError },
@@ -40,10 +40,10 @@ export const counterBundle = bundle({
 // -----------------------------------------------------------------------------
 // Errors
 
-export const pushError = (state, error) => ([...state, error]);
-export const popError = state => state.slice(0, -1);
+const pushError = (state, error) => ([...state, error]);
+const popError = state => state.slice(0, -1);
 
-export const errorsBundle = bundle({
+const errorsBundle = bundle({
   key: 'errors',
   exportApi: true,
   initialState: [],
@@ -72,5 +72,3 @@ counterBundle.publishError(countersError);
 
 assert.equal(errorsBundle.getState()[0], usersError);
 assert.equal(errorsBundle.getState()[1], countersError);
-
-export default true;

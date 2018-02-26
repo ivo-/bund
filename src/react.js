@@ -1,4 +1,4 @@
-import { PureComponent, createElement } from 'react';
+const { PureComponent, createElement } = require('react');
 
 const defaultSelectAll = state => state;
 const defaultSelectOnceAll = (state, bundle) => ({
@@ -21,7 +21,7 @@ const defaultThrottle = f => f;
  * @param {Object} thisBundle
  * @param {Object} options
  */
-export function connect(
+module.exports = function connect(
   thisBundle,
   {
     selectAll = false,
@@ -70,18 +70,4 @@ export function connect(
       );
     }
   };
-}
-
-function autocurry(fn) {
-  const { length } = fn;
-
-  return function next(...args) {
-    if (args.length < length) {
-      return next.bind(this, ...args);
-    }
-
-    return fn(...args);
-  };
-}
-
-export default autocurry(connect);
+};

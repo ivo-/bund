@@ -4,8 +4,8 @@
 // application state.
 //
 
-import assert from 'assert';
-import { bundle, combine } from '../src/index';
+const assert = require('assert');
+const { bundle, combine } = require('../src/index');
 
 // -----------------------------------------------------------------------------
 // Bundle
@@ -53,5 +53,3 @@ assert.deepEqual(
   appBundle.getState(),
   { apples: 1, peaches: 0 }
 );
-
-export default true;

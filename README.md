@@ -12,7 +12,7 @@ $ npm install --save bund
 
 ### Rationale
 
-We strongly believe that immutability is the way to go for building a reliable
+I strongly believe that immutability is the way to go for building a reliable
 software. There are several wonderful libraries for managing state in this
 fashion, but despite the benefits most of them intorduce a lot of abstraction or
 unnatural feel about imitable programming. `bund` is designed to offer simple
@@ -86,12 +86,13 @@ import { bundle, combine } from './src';
 
 #### State management
 
-- Describe your state management as pure function.
-- This is as generic and framework agnostic as you can get, this code always
+- Describe your state management with pure functions.
+- This is as generic and framework agnostic as you can get. Such code always
   stays relevant even after your favorite framework is long gone and replaced
   with something new and shiny.
-- This is always the core of your app, your domain logic, most of your
-  code. The rest will be "gluing" by `bund`.
+- This is always the core of a `bund` app, the domain logic, most of the
+  code. The rest will be some "gluing" by `bund`.
+- Incremental adoption, use it this way and then bundle if you need to
 - Save this in a single file containing all the state for a particular part of
   your application. We call those files `state bundles`.
 
@@ -142,10 +143,10 @@ fetchUsers().then(users => {
 ```
 #### Bundling
 
-Now is the time to create a bundle out of your users state. A bundle is a
-wrapper for all the state management logic that maintains the state identity ->
+Now is the time to create a bundle out of our users state. A bundle is a
+wrapper for all the state management logic that maintains the state identity -
 a pointer to the last state. This is what the `bund` library is - a tool to
-bundle and compose bundle of your immutable application state logic.
+bundle and compose bundles of immutable application state logic.
 
 ```js
 const usersBundle = bundle({
@@ -232,6 +233,10 @@ usersBundle.setState(addUser(
   {}
 ));
 ```
+
+Mixed OOP + FP design here is inspired by React itself. Logic is described with
+simple pure functions, that are later bundled together to provide some
+structure and nicer API.
 
 #### Using action signals API
 
@@ -377,6 +382,27 @@ const Users = connect(usersBundle, {
 }, UsersPure);
 ```
 
+As you can see, it is easy connect React component to desired bundle. We can do
+this sequentially for a list of bundles or we can directly `combine` those
+bundles in a single bundle and `connect` component to the combined bundle.
+
+With combining approach state behaves like it is a single object, components
+connected to individual sub-bundles are protected from the knowledge of all the
+other state in the system. This provides a great way to split the system into
+subsystems.
+
+Components can be distributed with their state bundles and big systems can be
+built not by just composing components, but composing state as well.
+
 #### More examples
 
 Check the `/examples` directory.
+
+#### Docs
+
+Documentation is along the way. You can check the source code and examples for
+now.
+
+### License
+
+Copyright 2018-present Ivailo Hristov under The MIT License (MIT)

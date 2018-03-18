@@ -49,7 +49,7 @@
     "lint:fix": "eslint --fix src/**",
     "build": "npx babel src --out-dir lib",
     "build:examples": "npx babel-node examples",
-    "build:docs": "cat src/navigators.js src/navigators-meta.js | dox -a > ./DOCS.md",
+    "build:docs": "cat src/api.js src/react.js src/redux.js | dox -a > ./DOCS.md",
     "prepare": "npm run lint && npm run test && npm run build && npm run build:examples && npm run build:docs"
   }
 }

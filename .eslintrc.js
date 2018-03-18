@@ -40,7 +40,7 @@ module.exports = {
     'no-return-assign': DISABLE,
     'no-param-reassign': DISABLE,
     'function-paren-newline': DISABLE,
-    'space-before-function-paren': ["error", "never"],
+    'space-before-function-paren': ['error', 'never'],
 
     'arrow-parens': [ERROR, 'as-needed'],
     'comma-dangle': [
@@ -55,5 +55,9 @@ module.exports = {
     ],
 
     'no-unused-vars': [ERROR, { argsIgnorePattern: '^_' }],
+    'import/no-extraneous-dependencies': [
+      'error',
+      { devDependencies: ['**/*_spec.js'] },
+    ],
   },
 };

@@ -326,7 +326,7 @@ And here we are to the essence, how to use `bund` for practical front-end
 applications. Integration with React can be as simple as:
 
 ```js
-import { combine } from 'react-bund';
+import { connect } from 'react-bund';
 
 const Users = connect(usersBundle, { slectAll: true }, ({ usersList, addUser, removeUser, updateUser}) => (
   <div className="Users">

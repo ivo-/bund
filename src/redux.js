@@ -1,4 +1,11 @@
 /**
+ * Helper functions to connect bundle to redux store in order to use `bund`
+ * as optimization in Redux app. Usually you want to create and add reducers
+ * for all the individual bundles and `connectToStore` a combination (combined
+ * bundle) of the bundles.
+ */
+
+/**
  * Creates redux reducer from bund bundle.
  */
 const createReducer = stateBundle => (

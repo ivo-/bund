@@ -175,16 +175,12 @@ const usersBundle = bundle({
     removeUser,
     updateUser,
 
-    // Helper for creating async actions. SEE: examples/06-async.js for more
-    // detailed explanation of this functionality.
-    // fetchUsers: asyncAction({
-    //   mechanism: 'MECHANISM_FIRST',
-    //   fetch: fetchUsers,
-    //   successAction: 'addUser',
-    //   // errorAction: 'addError',
-    //   // beforeAction: 'setLoading',
-    //   // beforeAction: 'setLoaded',
-    // }),
+    // Async action. `this` is the current bundle. We will async
+    // actions explain them later.
+    fetchUsers: function(state) {
+      fetchUsers().then(users => this.addUsers(users))
+      return state;
+    }
   },
 
   // Memoizes them with simple 1 level cache memoization. For move advanced

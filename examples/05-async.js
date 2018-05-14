@@ -10,6 +10,7 @@ const { bundle, asyncAction } = require('../src/index');
 // -----------------------------------------------------------------------------
 // Bundle
 
+const setLoading = state => ({ ...state, loading: true });
 const usersBundle = bundle({
   key: 'users',
   exportApi: true,
@@ -36,7 +37,7 @@ const usersBundle = bundle({
     setUsers: (state, users) => ({ ...state, users }),
     setError: (state, error) => ({ ...state, error }),
     setLoaded: state => ({ ...state, loading: false }),
-    setLoading: state => ({ ...state, loading: true }),
+    setLoading,
 
     // `asyncAction` util helps you dealing with async actions. If basically
     // forms a data flow for handling a remote call. Your can provide actions to
@@ -46,23 +47,16 @@ const usersBundle = bundle({
     //   - Error action will be called with one argument - the error
     //   - Success action will be called with one argument - response
     //
-    fetchUsers: asyncAction({
-      // 'MECHANISM_ONCE' => execute only one time and on subsequent executions
-      //                     do nothing
-      // 'MECHANISM_EVERY' => execute every time
-      // 'MECHANISM_FIRST' => ignore all subsequent executions until current one
-      //                      is not finished
-      // 'MECHANISM_SEQUENTIAL' => execute every time but sequentially, not
-      //                           concurrently
-      mechanism: 'MECHANISM_FIRST',
-      fetch: () => new Promise(resolve => (
+    fetchUsers(state) {
+      new Promise(resolve => (
         setTimeout(resolve.bind(this, [{ id: 1 }]), 100)
-      )),
-      successAction: 'setUsers',
-      errorAction: 'setError',
-      beforeAction: 'setLoading',
-      afterAction: 'setLoaded',
-    }),
+      ))
+        .then(users => this.setUsers(users))
+        .catch(error => this.setError(error))
+        .finally(() => this.setLoaded());
+
+      return setLoading(state);
+    },
   },
 });
 

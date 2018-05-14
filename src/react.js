@@ -1,37 +1,49 @@
 const { PureComponent, createElement } = require('react');
 
+const defaultThrottle = f => f;
+
+const defaultSelect = () => ({});
 const defaultSelectAll = state => state;
 const defaultSelectOnceAll = (state, bundle) => ({
-  ...(bundle.actions ? {
-    ...bundle.actions,
-    ...bundle.selectors,
-  } : {
-    ...Object.values(bundle).reduce((res, b) => ({
-      ...res,
-      ...b.actions,
-      ...b.selectors,
-    })),
-  }),
+  ...(bundle.actions
+    ? {
+      ...bundle.actions,
+      ...bundle.selectors,
+    } : {
+      ...Object.values(bundle).reduce((res, b) => ({
+        ...res,
+        ...b.actions,
+        ...b.selectors,
+      })),
+    }),
 });
-const defaultThrottle = f => f;
+
+// TODO: Memoize select functions.
 
 /**
  * Connect provided React component to the provided bundle.
- * @param {React.Component} component
  * @param {Object} thisBundle
  * @param {Object} options
+ * @param {React.Component} component
  */
 module.exports = function connect(
   thisBundle,
   {
     selectAll = false,
-    select = selectAll && defaultSelectAll,
-    selectOnce = selectAll && defaultSelectOnceAll,
+    select = selectAll ? defaultSelectAll : defaultSelect,
+    selectOnce = selectAll ? defaultSelectOnceAll : defaultSelect,
     throttle = defaultThrottle,
   },
-  component,
+  component
 ) {
-  const selectArg = thisBundle.bundles
+  // Second argument to select functions is different depending whether you
+  // connect to combined bundle or not.
+  //
+  //   - For non-combined bundle, second argument is current bundle.
+  //   - For combined bundle, second argument is mapping `key -> bundle` of
+  //     combined bundles.
+  //
+  const selectSecondArg = thisBundle.bundles
     ? thisBundle.bundles.reduce((res, b) => ({ ...res, [b.key]: b }))
     : thisBundle;
 
@@ -39,9 +51,13 @@ module.exports = function connect(
     constructor(props) {
       super(props);
 
-      this.staticProps = selectOnce(thisBundle.getState(), selectArg, props);
+      this.staticProps = selectOnce(
+        thisBundle.getState(),
+        selectSecondArg,
+        props
+      );
       this.getDynamicProps = () =>
-        select(thisBundle.getState(), selectArg, this.props);
+        select(thisBundle.getState(), selectSecondArg, this.props);
 
       this._lastDynamicProps = null;
 
@@ -66,7 +82,7 @@ module.exports = function connect(
       this._lastDynamicProps = this.getDynamicProps();
       return createElement(
         component,
-        Object.assign({}, this.props, this.staticProps, this._lastDynamicProps),
+        Object.assign({}, this.props, this.staticProps, this._lastDynamicProps)
       );
     }
   };

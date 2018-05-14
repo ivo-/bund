@@ -51,10 +51,10 @@ function autocurry(fn) {
 }
 
 /**
- * Takes a function `fn` and fewer than the normal arguments to `fn`,
- * and returns a fn that takes a variable number of additional args.
- * When called, the returned function calls `fn` with args + additional
- * args.
+ * Takes a function `fn` and fewer than the normal `args` to `fn`,
+ * and returns a function that takes a variable number of additional
+ * arguments. When called, the returned function calls `fn` with `args`
+ * + additional arguments.
  *
  * @example
  *
@@ -163,7 +163,6 @@ function combine(...bundles) {
     );
   }
 
-  // TODO: signal for collision
   return {
     bundles,
 
@@ -195,75 +194,12 @@ function combine(...bundles) {
   };
 }
 
-const MECHANISM_ONCE = 'MECHANISM_ONCE';
-const MECHANISM_EVERY = 'MECHANISM_EVERY';
-const MECHANISM_FIRST = 'MECHANISM_FIRST';
-const MECHANISM_SEQUENTIAL = 'MECHANISM_SEQUENTIAL';
-
-function asyncAction({
-  mechanism = MECHANISM_EVERY,
-  fetch = Function,
-  errorAction = null,
-  successAction = null,
-  afterAction = null,
-  beforeAction = null,
-}) {
-  let current = null;
-  const doAction = function doAction(thisBundle, ...args) {
-    switch (mechanism) {
-      case MECHANISM_ONCE:
-      case MECHANISM_FIRST: {
-        if (current) return;
-        break;
-      }
-
-      case MECHANISM_SEQUENTIAL: {
-        if (current) {
-          current.then(() =>
-            setTimeout(() => doAction(thisBundle, ...args), 0)
-          );
-          return;
-        }
-        break;
-      }
-
-      case MECHANISM_EVERY: {
-        break;
-      }
-      default:
-    }
-
-    if (thisBundle.actions[beforeAction]) thisBundle.actions[beforeAction]();
-
-    current = fetch(...args)
-      .then(
-        res =>
-          thisBundle.actions[successAction] &&
-          thisBundle.actions[successAction](res)
-      )
-      .catch(
-        err =>
-          thisBundle.actions[errorAction] &&
-          thisBundle.actions[errorAction](err)
-      )
-      .then(() => {
-        if (thisBundle.actions[afterAction]) thisBundle.actions[afterAction]();
-        if (mechanism !== MECHANISM_ONCE) current = null;
-      });
-  };
-
-  return function(state, ...args) {
-    setTimeout(() => doAction(this, ...args), 0);
-    return state;
-  };
-}
-
 /*
  * Creates memoized version of `partial`. Cache works on 2 levels: number of
  * functions to be cached, and number of different arguments to be cached per
  * function. Cache follows Last In First Out (LIFO) policy.
- * @param {Number} cacheSize=1000
- * @param {Number} cacheItemSize=40
+ * @param {Number} cacheSize = 1000
+ * @param {Number} cacheItemSize = 40
  * @returns {Function}
  */
 function createPartialMemoize(cacheSize = 1000, cacheItemSize = 40) {
@@ -283,7 +219,7 @@ function createPartialMemoize(cacheSize = 1000, cacheItemSize = 40) {
         fn,
         [{ args, newF }, ...cachedValue].slice(0, partialMemoize.cacheItemSize)
       );
-    } else {
+    } else {n
       cache.set(fn, [{ args, newF }]);
       if (cache.size > partialMemoize.cacheSize) {
         // The cryptic way to delete the first Map item.
@@ -304,12 +240,6 @@ function createPartialMemoize(cacheSize = 1000, cacheItemSize = 40) {
 module.exports = {
   bundle,
   combine,
-
-  asyncAction,
-  MECHANISM_ONCE,
-  MECHANISM_EVERY,
-  MECHANISM_FIRST,
-  MECHANISM_SEQUENTIAL,
 
   comp,
   memoize,
